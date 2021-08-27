@@ -2,9 +2,8 @@ import * as R from 'ramda';
 import * as Flex from '@twilio/flex-ui';
 import { FlexPlugin } from 'flex-plugin';
 
-import reducers, {
-  namespace, initiateChatMetrics, terminateChatMetrics
-} from './states';
+import reducers, {namespace, initiateChatMetrics, terminateChatMetrics} from './states';
+import { addMetricsToTask } from './helpers';
 
 const PLUGIN_NAME = 'PluginDigitalIxnMetrics';
 
@@ -28,10 +27,28 @@ const afterCompleteTask = R.curry((manager, payload) => {
   const {dispatch} = store;
   const {task} = payload;
   const {taskChannelUniqueName} = task;
-  console.log(`${PLUGIN_NAME}.afterCompleteTask: task:`, task);
-  if (taskChannelUniqueName !== 'voice')
+  if (taskChannelUniqueName !== 'voice') {
+    const chat = store.getState()[namespace].appState.chats[task.sid];
+    console.log('--------------------final chat stats:', chat);
+    const data = {};
+    data.first_response_time = chat.timeToFirstAgentMsg;
+    data.conversation_measure_1 = chat.agentReplyCnt;
+    data.conversation_measure_2 = chat.agentReplyDur;
+    data.conversation_measure_3 = chat.customerReplyCnt;
+    data.conversation_measure_4 = chat.customerReplyDur;
+    updateTaskConversations(task, data);
     dispatch( terminateChatMetrics(task.sid) );
+  }
 });
+
+// mutates task attributes
+const updateTaskConversations = (task, data) => {
+  return new Promise((resolve, reject) => {
+    const attributes = addMetricsToTask(task, data);
+    task.setAttributes(attributes)
+    resolve(`task attributes updated`);
+  });
+};
 
 export default class PluginDigitalIxnMetrics extends FlexPlugin {
   constructor() {

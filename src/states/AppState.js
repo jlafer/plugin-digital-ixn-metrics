@@ -41,13 +41,36 @@ const addMessage = (state, payload) => {
   const [resSid, chat] = getChatAndKeyByChannelSid(state.chats, channelSid);
   const newChat = R.clone(chat);
   if (sentByWorker) {
+    if (!chat.lastMsgByAgent) {
+      newChat.agentReplyCnt += 1;
+      const dur = ts - chat.latestCustomerMsgTs;
+      newChat.agentReplyDur += dur;
+    }
     newChat.agentMsgCnt += 1;
+    newChat.latestAgentMsgTs = ts;
+    if (chat.timeToFirstAgentMsg === 0)
+      newChat.timeToFirstAgentMsg = ts - chat.startTS;
   }
   else {
+    if (chat.lastMsgByAgent) {
+      newChat.customerReplyCnt += 1;
+      const dur = ts - chat.latestAgentMsgTs;
+      newChat.customerReplyDur += dur;
+    }
     newChat.customerMsgCnt += 1;
+    newChat.latestCustomerMsgTs = ts;
   }
+  newChat.lastMsgByAgent = sentByWorker;
   const chats = R.assoc(resSid, newChat, state.chats);
   return {...state, chats};
+};
+
+const initiateChat = (channelSid, startTS) => {
+  return {
+    channelSid, startTS, lastMsgByAgent: false, timeToFirstAgentMsg: 0,
+    customerMsgCnt: 0, customerReplyCnt: 0, customerReplyDur: 0, latestCustomerMsgTs: startTS,
+    agentMsgCnt: 0, agentReplyCnt: 0, agentReplyDur: 0, latestAgentMsgTs: 0
+  };
 };
 
 const getChatAndKeyByChannelSid = (chats, channelSid) => {
@@ -61,13 +84,6 @@ const termChatMetrics = (state, payload) => {
     console.warn('termChatMetrics: chat not found in state???', payload);
     return state;
   }
-  const {startTS} = chat;
   const chats = R.dissoc(resSid, state.chats);
   return {...state, chats};
-};
-
-const initiateChat = (channelSid, startTS) => {
-  return {
-    channelSid, startTS, customerMsgCnt: 0, agentMsgCnt: 0, customerMsgDur: 0, agentMsgDur: 0
-  };
 };

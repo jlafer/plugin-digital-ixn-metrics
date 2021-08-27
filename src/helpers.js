@@ -1,5 +1,6 @@
+import * as R from 'ramda';
 import { Manager } from '@twilio/flex-ui';
-import {messageSent} from './states';
+import {namespace, messageSent} from './states';
 
 export const setChatChannelCallbacks = (channelSid) => {
   console.log(`-----------setChatChannelCallbacks: channelSid:`, channelSid);
@@ -25,4 +26,10 @@ export const onMessage = async (manager, channelSid, message) => {
   }
   else {
   }
+};
+
+// addMetricsToTask :: (task, data) -> task.attributes
+export const addMetricsToTask = (task, data) => {
+  const conversations = R.mergeRight(task.attributes.conversations, data);
+  return R.assoc('conversations', conversations, task.attributes);
 };
