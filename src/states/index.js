@@ -1,12 +1,16 @@
 import { combineReducers } from 'redux';
 
-import {INIT_CHAT_METRICS, TERM_CHAT_METRICS, CHAT_MSG_SENT} from './actions';
+import {SET_EXECUTION_CONTEXT, INIT_CHAT_METRICS, TERM_CHAT_METRICS, CHAT_MSG_SENT} from './actions';
 import appStateReducer from "./AppState";
 
 export const namespace = 'plugin-digital-ixn-metrics';
 
 export default combineReducers({
   appState: appStateReducer
+});
+
+export const setExecutionContext = (payload) => ({
+  type: SET_EXECUTION_CONTEXT, payload
 });
 
 export const initiateChatMetrics = (resSid, channelSid, ts) => ({

@@ -1,14 +1,17 @@
 import * as R from 'ramda';
-import {INIT_CHAT_METRICS, TERM_CHAT_METRICS, CHAT_MSG_SENT} from './actions';
+import {SET_EXECUTION_CONTEXT, INIT_CHAT_METRICS, TERM_CHAT_METRICS, CHAT_MSG_SENT} from './actions';
 import {setChatChannelCallbacks} from '../helpers';
 
 const initialState = {
-  chats: {}
+  chats: {},
+  config: {}
 };
 
 export default function reduce(state = initialState, action) {
   const {type, payload, meta} = action;
   switch (type) {
+    case SET_EXECUTION_CONTEXT:
+      return R.mergeRight(state, action.payload);
     /* NOTE: using the Flex action CHANNEL_LOAD_FULFILLED is not good for 2 reasons:
       1) using Flex actions is not part of the public API of Flex
       2) setting a callback from within a reducer is considered an anti-pattern
