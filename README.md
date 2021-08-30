@@ -16,15 +16,51 @@ npm install
 
 - Copy appConfig.example.js in `public` to appConfig.js and ake any changes you need.
 
-### Serverless
-The `plugin-digital-ixn-metrics-fns` sub-folder contains sample Serverless functions. You will probably want to rename this folder (or remove it if you don't need any Serverless functions).
-
-The `get-sync-token` function provides the client with a Sync token as part of demonstrating the use of Twilio Sync.
-
 ## Configuration
-The serverless functions depend on a set of environment variables. Those are documented in the module comment-block inside `get-sync-token.js`. A sample environment file, `.env.sample`, is located in the `plugin-digital-ixn-metrics-fns` subfolder. It should be copied to `.env` and then edited with the correct values.
+The `PluginDigitalIxnMetrics` namespace within the `attributes` property of the Flex configuration object is used to configure the plugin. Configuration consists of mapping metrics calculated by the plugin to Task attribute keys. The plugin configuration data should have the following structure. The metric names are documented below.
 
-Similarly, the client application depends on environment variables during development and testing against the local web server. These variables are also used when the plugin is built and deployed to the Twilio cloud (see below). For this, the project contains a sample environment file, `.env.sample`, in the root folder. Again, it should be copied to `.env` for editing with the correct values. Note that this file provides so-called "React environment variables" whose names must start with the string, `REACT_APP_`.
+```bash
+  PluginDigitalIxnMetrics: {
+    attributes: {
+      [attributeName]: [metric name],
+      o o o
+    }
+  }
+```
+
+The `agentMsgCnt` metric contains the number of messages sent by the agent.
+
+The `agentReplyCnt` metric contains the number of reply messages sent by the agent. A reply is a message that immediately follows a message from the other party. So, if an agent were to respond to a customer with three messages, wihout an intervening message from the customer, that would count as three messages but only a single reply. Note that `avgAgentReplyTime` is based on the number of agent replies - not on the number of agent messages.
+
+The `agentReplyTime` metric contains the total time, in mSecs, between each customer reply message and the next reply message sent by the agent. A reply is a message that immediately follows a message from the other party.
+
+The `timeToFirstAgentMsg` metric contains the time, in mSecs, between delivery of the interaction to the agent and the agent's first message sent to the customer.
+
+The `customerMsgCnt` metric contains the number of messages sent by the customer.
+
+The `customerReplyCnt` metric contains the number of reply messages sent by the customer. A reply is a message that immediately follows a message from the other party. So, if a customer were to respond to an agent with three messages, wihout an intervening message from the agent, that would count as three messages but only a single reply. Note that `avgCustomerReplyTime` is based on the number of customer replies - not on the number of customer messages.
+
+The `customerReplyTime` metric contains the total time, in mSecs, between each agent reply message and the next reply message sent by the customer. A reply is a message that immediately follows a message from the other party.
+
+See `appConfig.example.js` for sample configuration data. For local development, use `appConfig.js` to configure the plugin. For a Twilio-hosted deployment, update the Flex configuration using the Flex API as described [here](https://www.twilio.com/docs/flex/ui/configuration#modifying-configuration-for-flextwiliocom). Here's an example of calling the API via `curl` that can be used IF NO OTHER PLUGINS ARE CONFIGURED in the `attributes` property. As described in the document linked above, other plugins' configuration data can be preserved by first GETting the `attributes` data, editing the result to add in the `PluginDigitalIxnMetrics` key, and then POSTing back the edited result.
+
+```bash
+curl https://flex-api.twilio.com/v1/Configuration -X POST -u ACxx:auth_token \
+    -H 'Content-Type: application/json' \
+    -d '{
+        "account_sid": "ACxx",
+        "attributes": {
+          "PluginDigitalIxnMetrics": {
+            "attributes": {
+              "average_response_time": "agentAvgReplyTime",
+              "first_response_time": "timeToFirstAgentMsg",
+              "conversation_measure_3": "agentMsgCnt"
+            }
+          }
+        }
+    }'
+```
+
 
 Run `twilio flex:plugins --help` to see all the commands currently supported by the Flex Plugins CLI. For further details refer to documentation on the [Flex Plugins CLI docs](https://www.twilio.com/docs/flex/developer/plugins/cli) page.
 

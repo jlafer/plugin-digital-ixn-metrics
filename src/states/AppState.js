@@ -13,9 +13,9 @@ export default function reduce(state = initialState, action) {
     case SET_EXECUTION_CONTEXT:
       return R.mergeRight(state, action.payload);
     /* NOTE: using the Flex action CHANNEL_LOAD_FULFILLED is not good for 2 reasons:
-      1) using Flex actions is not part of the public API of Flex
-      2) setting a callback from within a reducer is considered an anti-pattern
-      However, I can't see any other way to learn when the chat channel is ready
+      1) Flex Redux actions are not part of the public API of Flex and are subject to change
+      2) setting a callback from within a reducer is considered a Redux anti-pattern
+      However, I can't see any way witht the API to learn when the chat channel is ready
     */
     case 'CHANNEL_LOAD_FULFILLED':
       const channelSid = meta.channelSid;
@@ -41,13 +41,13 @@ const addChatMetrics = (state, payload) => {
 
 const addMessage = (state, payload) => {
   const {channelSid, sentByWorker, ts} = payload;
-  const [resSid, chat] = getChatAndKeyByChannelSid(state.chats, channelSid);
+  const [resSid, chat] = getResSidAndChatByChannelSid(state.chats, channelSid);
   const newChat = R.clone(chat);
   if (sentByWorker) {
-    if (!chat.lastMsgByAgent) {
+    if (!chat.latestMgByAgent) {
       newChat.agentReplyCnt += 1;
       const dur = ts - chat.latestCustomerMsgTs;
-      newChat.agentReplyDur += dur;
+      newChat.agentReplyTime += dur;
     }
     newChat.agentMsgCnt += 1;
     newChat.latestAgentMsgTs = ts;
@@ -55,28 +55,28 @@ const addMessage = (state, payload) => {
       newChat.timeToFirstAgentMsg = ts - chat.startTS;
   }
   else {
-    if (chat.lastMsgByAgent) {
+    if (chat.latestMgByAgent) {
       newChat.customerReplyCnt += 1;
       const dur = ts - chat.latestAgentMsgTs;
-      newChat.customerReplyDur += dur;
+      newChat.customerReplyTime += dur;
     }
     newChat.customerMsgCnt += 1;
     newChat.latestCustomerMsgTs = ts;
   }
-  newChat.lastMsgByAgent = sentByWorker;
+  newChat.latestMgByAgent = sentByWorker;
   const chats = R.assoc(resSid, newChat, state.chats);
   return {...state, chats};
 };
 
 const initiateChat = (channelSid, startTS) => {
   return {
-    channelSid, startTS, lastMsgByAgent: false, timeToFirstAgentMsg: 0,
-    customerMsgCnt: 0, customerReplyCnt: 0, customerReplyDur: 0, latestCustomerMsgTs: startTS,
-    agentMsgCnt: 0, agentReplyCnt: 0, agentReplyDur: 0, latestAgentMsgTs: 0
+    channelSid, startTS, latestMgByAgent: false, timeToFirstAgentMsg: 0,
+    customerMsgCnt: 0, customerReplyCnt: 0, customerReplyTime: 0, latestCustomerMsgTs: startTS,
+    agentMsgCnt: 0, agentReplyCnt: 0, agentReplyTime: 0, latestAgentMsgTs: 0
   };
 };
 
-const getChatAndKeyByChannelSid = (chats, channelSid) => {
+const getResSidAndChatByChannelSid = (chats, channelSid) => {
   return R.toPairs(chats).find(([_key, val]) => val.channelSid === channelSid);
 };
 
