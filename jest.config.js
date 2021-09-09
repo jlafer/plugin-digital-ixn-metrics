@@ -1,8 +1,9 @@
-module.exports = (config, { isProd, isDev, isTest }) => {
-  /**
-   * Customize the Jest by modifying the config object.
-   * Consult https://jestjs.io/docs/en/configuration for more information.
-   */
+/*
+ * For a detailed explanation regarding each configuration property, visit:
+ * https://jestjs.io/docs/configuration
+ */
 
-  return config;
-}
+module.exports = {
+  // The test environment that will be used for testing
+  testEnvironment: "jsdom",
+};

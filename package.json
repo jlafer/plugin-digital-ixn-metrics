@@ -4,7 +4,8 @@
   "description": "A Twilio Flex plugin for capturing extra metrics for digital interactions",
   "private": true,
   "scripts": {
-    "postinstall": "flex-plugin pre-script-check"
+    "postinstall": "flex-plugin pre-script-check",
+    "test": "jest"
   },
   "dependencies": {
     "dotenv-webpack": "^7.0.3",
@@ -16,7 +17,11 @@
     "twilio-sync": "^2.0.1"
   },
   "devDependencies": {
+    "@babel/core": "^7.15.0",
+    "@babel/preset-env": "^7.15.0",
     "@twilio/flex-ui": "^1.27.0",
+    "babel-jest": "^27.1.0",
+    "jest": "^27.1.0",
     "react-test-renderer": "16.5.2"
   }
 }

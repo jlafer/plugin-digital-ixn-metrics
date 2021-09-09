@@ -15,7 +15,7 @@ export default function reduce(state = initialState, action) {
     /* NOTE: using the Flex action CHANNEL_LOAD_FULFILLED is not good for 2 reasons:
       1) Flex Redux actions are not part of the public API of Flex and are subject to change
       2) setting a callback from within a reducer is considered a Redux anti-pattern
-      However, I can't see any way witht the API to learn when the chat channel is ready
+      However, I can't see any way with the current API to learn when the chat channel is ready
     */
     case 'CHANNEL_LOAD_FULFILLED':
       const channelSid = meta.channelSid;
@@ -32,19 +32,19 @@ export default function reduce(state = initialState, action) {
   }
 }
 
-const addChatMetrics = (state, payload) => {
+export const addChatMetrics = (state, payload) => {
   const {resSid, channelSid, ts} = payload;
   const chat = initiateChat(channelSid, ts);
   const chats = R.assoc(resSid, chat, state.chats);
   return {...state, chats};
 };
 
-const addMessage = (state, payload) => {
+export const addMessage = (state, payload) => {
   const {channelSid, sentByWorker, ts} = payload;
   const [resSid, chat] = getResSidAndChatByChannelSid(state.chats, channelSid);
   const newChat = R.clone(chat);
   if (sentByWorker) {
-    if (!chat.latestMgByAgent) {
+    if (!chat.latestMsgByAgent) {
       newChat.agentReplyCnt += 1;
       const dur = ts - chat.latestCustomerMsgTs;
       newChat.agentReplyTime += dur;
@@ -55,7 +55,7 @@ const addMessage = (state, payload) => {
       newChat.timeToFirstAgentMsg = ts - chat.startTS;
   }
   else {
-    if (chat.latestMgByAgent) {
+    if (chat.latestMsgByAgent) {
       newChat.customerReplyCnt += 1;
       const dur = ts - chat.latestAgentMsgTs;
       newChat.customerReplyTime += dur;
@@ -63,14 +63,14 @@ const addMessage = (state, payload) => {
     newChat.customerMsgCnt += 1;
     newChat.latestCustomerMsgTs = ts;
   }
-  newChat.latestMgByAgent = sentByWorker;
+  newChat.latestMsgByAgent = sentByWorker;
   const chats = R.assoc(resSid, newChat, state.chats);
   return {...state, chats};
 };
 
 const initiateChat = (channelSid, startTS) => {
   return {
-    channelSid, startTS, latestMgByAgent: false, timeToFirstAgentMsg: 0,
+    channelSid, startTS, latestMsgByAgent: false, timeToFirstAgentMsg: 0,
     customerMsgCnt: 0, customerReplyCnt: 0, customerReplyTime: 0, latestCustomerMsgTs: startTS,
     agentMsgCnt: 0, agentReplyCnt: 0, agentReplyTime: 0, latestAgentMsgTs: 0
   };
@@ -80,7 +80,7 @@ const getResSidAndChatByChannelSid = (chats, channelSid) => {
   return R.toPairs(chats).find(([_key, val]) => val.channelSid === channelSid);
 };
 
-const termChatMetrics = (state, payload) => {
+export const termChatMetrics = (state, payload) => {
   const {resSid} = payload;
   const chat = state.chats[resSid];
   if (!chat) {
