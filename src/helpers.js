@@ -17,8 +17,7 @@ export const onMessage = async (manager, channelSid, message) => {
   const ts = Date.now();
   //console.log(`--------------------messageAdded: author = ${author}`);
   //console.log(`  body = ${body}`);
-  const workerName = manager.workerClient.name.replace('@', '_40').replace('.', '_2E');
-  //console.log(`  worker = ${workerName}`);
+  const workerName = workerNameDecode(manager.workerClient.name);
   manager.store.dispatch( messageSent(channelSid, (author === workerName), ts) );
 };
 
@@ -27,3 +26,6 @@ export const addMetricsToTask = (task, data) => {
   const conversations = R.mergeRight(task.attributes.conversations, data);
   return R.assoc('conversations', conversations, task.attributes);
 };
+
+const workerNameDecode = name =>
+  name.replace('@', '_40').replace('.', '_2E').replace('+', '_2B');

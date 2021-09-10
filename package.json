@@ -1,6 +1,6 @@
 {
   "name": "plugin-digital-ixn-metrics",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "A Twilio Flex plugin for capturing extra metrics for digital interactions",
   "private": true,
   "scripts": {
