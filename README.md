@@ -4,7 +4,7 @@ This is a Twilio Flex Plugin that captures a set of metrics for digital interact
 
 ## Setup
 
-Make sure you have [Node.js](https://nodejs.org) as well as [`npm`](https://npmjs.com). We support Node >= 10.12 (and recommend the _even_ versions of Node). Afterwards, install the dependencies by running `npm install`:
+Make sure you have [Node.js](https://nodejs.org) as well as [`npm`](https://npmjs.com). We support Node >= 12 (and recommend the _even_ versions of Node). Afterwards, install the dependencies by running `npm install`:
 
 ```bash
 cd plugin-digital-ixn-metrics
@@ -14,7 +14,7 @@ npm install
 ```
 ## Development
 
-- Copy appConfig.example.js in `public` to appConfig.js and ake any changes you need.
+- Copy appConfig.example.js in `public` to appConfig.js and make any changes you need.
 
 ## Configuration
 The `PluginDigitalIxnMetrics` namespace within the `attributes` property of the Flex configuration object is used to configure the plugin. Configuration consists of mapping metrics calculated by the plugin to Task attribute keys. The plugin configuration data should have the following structure. The metric names are documented below.
@@ -65,8 +65,7 @@ curl https://flex-api.twilio.com/v1/Configuration -X POST -u ACxx:auth_token \
 Run `twilio flex:plugins --help` to see all the commands currently supported by the Flex Plugins CLI. For further details refer to documentation on the [Flex Plugins CLI docs](https://www.twilio.com/docs/flex/developer/plugins/cli) page.
 
 ## Deploy
-The plugin can be built and deployed with the `deploy` command of the Flex CLI. To be activated in your Flex project runnning at `flex.twilio.com` you must use the `release` command. This allows you to install this and, optionally, other Flex plugins together. Again, refer to the docs cited above for more information.
+The plugin can be built and deployed with the `deploy` command of the Flex Plugins CLI. To activated this and other plugins in your Flex project runnning at `flex.twilio.com`, you can use the `release` command of the CLI. Again, refer to the docs cited above for more information.
 
 ## WARNING
 This code is supplied on a best-effort basis, without warranty, and should be carefully reviewed and tested prior to use. It is provided for instructional purposes only. Also, it makes use of a personal npm package by the author (i.e., `jlafer-flex-util`). That package should not be treated as production-grade and you are advised to use with care.
-
